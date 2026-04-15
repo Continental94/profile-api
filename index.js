@@ -38,6 +38,35 @@ app.post("/api/profiles", async (req, res) => {
 
   const cleanName = name.toLowerCase();
 
+  app.get("/api/profiles", (req, res) => {
+  const profiles = db.prepare("SELECT * FROM profiles").all();
+
+  res.json({
+    status: "success",
+    data: profiles
+  });
+});
+
+app.get("/api/profiles/:id", (req, res) => {
+  const { id } = req.params;
+
+  const profile = db.prepare(
+    "SELECT * FROM profiles WHERE id = ?"
+  ).get(id);
+
+  if (!profile) {
+    return res.status(404).json({
+      status: "error",
+      message: "Profile not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    data: profile
+  });
+});
+
   try {
     // CHECK IF EXISTS (better-sqlite3 style)
     const existing = db
@@ -154,4 +183,11 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+app.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    message: "Profile API is running 🚀"
+  });
 });
