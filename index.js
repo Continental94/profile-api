@@ -36,6 +36,33 @@ app.post("/api/profiles", async (req, res) => {
     });
   }
 
+  app.get("/api/profiles", (req, res) => {
+  let query = "SELECT * FROM profiles";
+  const params = [];
+  const filters = [];
+
+  if (req.query.gender) {
+    filters.push("gender = ?");
+    params.push(req.query.gender);
+  }
+
+  if (req.query.age_group) {
+    filters.push("age_group = ?");
+    params.push(req.query.age_group);
+  }
+
+  if (filters.length > 0) {
+    query += " WHERE " + filters.join(" AND ");
+  }
+
+  const profiles = db.prepare(query).all(...params);
+
+  res.json({
+    status: "success",
+    data: profiles
+  });
+});
+
   const cleanName = name.toLowerCase();
 
   app.get("/api/profiles", (req, res) => {
